@@ -43,7 +43,7 @@ export const Trello: React.FC = props => {
     const dragEndHandler = (e: DragEvent<HTMLDivElement>) => {
     }
 
-    const dragOverHandler = (e: DragEvent<HTMLDivElement>, board: BoardType, item: ItemType) => {
+    const dragOverHandler = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault()
     }
 
@@ -67,20 +67,44 @@ export const Trello: React.FC = props => {
 
     }
 
+    const dropCardHandler = (e: DragEvent<HTMLDivElement>, board: BoardType) => {
+        if (currentBoard && currentItem) {
+            board.items.push(currentItem)
+            const currentIndex = currentBoard.items.indexOf(currentItem)
+            currentBoard.items.splice(currentIndex, 1)
+            setBoards(boards.map(b => {
+                if (b.id === board.id) {
+                    return board
+                }
+                if (b.id === currentBoard.id) {
+                    return currentBoard
+                }
+                return b
+            }))
+        }
+    }
+
     return (
         <div className={s.container}>
             {boards.map(board =>
-                <div className={s.board}>
+
+                <div className={s.board}
+                     onDragOver={(e) => dragOverHandler(e)}
+                     onDrop={(e) => dropCardHandler(e, board)}
+                >
+
                     <div className={s.boardTitle}>{board.title}</div>
                     {board.items.map(item =>
+
                         <div draggable={"true"}
                              className={s.item}
-                             onDragOver={(e) => dragOverHandler(e, board, item)}
+                             onDragOver={(e) => dragOverHandler(e)}
                              onDragLeave={(e) => dragEndHandler(e)}
                              onDragStart={(e) => dragStartHandler(e, board, item)}
                              onDragEnd={(e) => dragEndHandler(e)}
                              onDrop={(e) => dropHandler(e, board, item)}
                         >
+
                             {item.title}
                         </div>
                     )}
